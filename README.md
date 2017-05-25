@@ -8,7 +8,7 @@ Features:
 ----------
 - TypeScript native (ES6)
 - Only 1 KB (minified) and zero dependencies !!!
-- Promisses are used for async transition completion
+- Promises are used for async transition completion
 - Generics for states and events types
 - Simple tabular state machine defnition
 - Hooks after state change and on error
