@@ -19,9 +19,9 @@ Installation:
 Take the code. I have not had the time to wrap it around with NPM etc.
 
 ```script
-tasnformation.ts - holds a base transformation class with generics.
+transition.ts - holds a base transformation class with generics.
 state-machine.ts - holds a base state-machine class with generics.
-test.ts - usage example and a bunch of tests. 
+test.ts - usage example and a bunch of tests (not using any test suite!). 
 index.ts - the startard library enty point.
 ```
 
