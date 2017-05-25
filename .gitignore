@@ -1,0 +1,8 @@
+src/*.js
+spec/*.js
+src/*.d.ts
+src/*.js.map
+example/*.js.map
+node_modules/
+bower_components/
+src/typestate-node.ts

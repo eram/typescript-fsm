@@ -1,0 +1,19 @@
+{
+  "name": "ts-fsm",
+  "version": "1.0.0",
+  "description": "finite state machine using promises ",
+  "main": "test.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "fsm",
+    "state-machine",
+    "promise",
+    "typescript"
+  ],
+  "author": "ethanram@gmail.com",
+  "license": "ISC"
+}
