@@ -91,7 +91,7 @@ door.go(States.open);       // start an async open
 door.getSate() ;            // === States.opened
 door.isFinal()	;           // === false. this becomes true after you break the door.
 
-
-// beautiful!
-// comments and suggestions are welcome.
+```
+Beautiful!
+Comments and suggestions are welcome.
 
