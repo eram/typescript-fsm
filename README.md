@@ -41,8 +41,11 @@ I'm modeling a "door" here. One can open the door, close it or break it. Once br
 enum States { closed, opened, broken };
 enum Events { open, close, break };
 
+class Tran extends Transition<States, Events> {}; // sugar
+
+
 // this is the state machine - an array of transitions
-const trans: Transition<States, Events>[] = [
+const trans: Tran[] = [
    //          fromState      event         callback    toState
    new Transition( States.closed, Events.open,  onOpen, 	States.opened   ),
    new Transition( States.opened, Events.close, onClose, 	States.closed   ),
@@ -51,7 +54,7 @@ const trans: Transition<States, Events>[] = [
 ];
 
 // initialize the state machine
-let door = new StateMachine<States, Events>(
+const door = new StateMachine<States, Events>(
    States.closed,   // initial state
    trans,           // array of transitions 
    hookAfterChange, // (trans: Transition<STATE, EVENT>) => void,
@@ -76,20 +79,20 @@ function onOpen(...args: any[]): Promise<number> {
 // onClose() and onBreak() functions are very similar to onOpen().
 
 // here are the hook callbacks - these are synchronous
-function hookAfterChange(trans: Trans2): void {
-   console.log("transition successful:" + trans);
+function hookAfterChange(tran: Tran): void {
+   console.log("transition successful:" + tran);
 }
 
-function hookOnFail(trans: Trans2, res: number): void {
-   console.log("transition failed:" + trans + " res:" + res);
+function hookOnFail(tran: Tran, res: number): void {
+   console.log("transition failed:" + tran + " res:" + res);
 }
 
 // we are ready for action:
 
 door.getState() ;           // === States.closed
-door.can(States.open) ;     // === true
+door.can(Events.open) ;     // === true
 
-door.go(States.open);       // start an async open 
+door.go(Events.open);       // start an async open 
            // - will call onOpen() immediately
            // - will call hookAfterChange() when promise is resolved
 
