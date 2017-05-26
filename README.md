@@ -23,7 +23,7 @@ Take the code. I have not had the time to wrap it around with NPM etc. These are
 # cd ts-fsm && npm install
 # npm install --save-dev @types/node
 # tsc
-# node out\test
+# npm run test
 ```
 Files:
 ```script
