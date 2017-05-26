@@ -44,7 +44,6 @@ enum Events { open, close, break };
 
 class Tran extends Transition<States, Events> {}; // sugar
 
-
 // this is the state machine - an array of transitions
 const trans: Tran[] = [
    //          fromState      event         callback    toState
