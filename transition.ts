@@ -1,4 +1,7 @@
-
+/* 
+ * transition.ts
+ * TypeScript state-machine library with async transformation using promises.
+ */
 
 export class Transition<STATE, EVENT> {
     constructor(
