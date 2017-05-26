@@ -21,8 +21,6 @@ Take the code. I have not had the time to wrap it around with NPM etc. These are
 # npm install -g typescript tslint typings
 # git clone https://github.com/eram/ts-fsm.git
 # cd ts-fsm && npm install
-# npm install --save-dev @types/node
-# tsc
 # npm run test
 ```
 Files:
