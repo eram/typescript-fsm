@@ -23,6 +23,7 @@ Take the code. I have not had the time to wrap it around with NPM etc. These are
 # cd ts-fsm && npm install
 # npm run test
 ```
+
 Files:
 ```script
 transition.ts - holds a base transformation class with generics.
