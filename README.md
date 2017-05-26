@@ -16,8 +16,16 @@ Features:
 
 Installation:
 ----------
-Take the code. I have not had the time to wrap it around with NPM etc.
-
+Take the code. I have not had the time to wrap it around with NPM etc. These are the general steps to get the test runing:
+```script
+# npm install -g typescript tslint typings
+# git clone https://github.com/eram/ts-fsm.git
+# cd ts-fsm && npm install
+# npm install --save-dev @types/node
+# tsc
+# node out\test
+```
+Files:
 ```script
 transition.ts - holds a base transformation class with generics.
 state-machine.ts - holds a base state-machine class with generics.
