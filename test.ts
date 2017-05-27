@@ -20,7 +20,6 @@ class Trans2 extends Transition<States, Events> {
 };
 
 
-
 class Door {
 
     private fsm: StateMachine<States, Events>;

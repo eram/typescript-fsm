@@ -1,2 +1,2 @@
-export { StateMachine } from "./state-machine";
-export { Transition } from "./transition";
+export { StateMachine } from "./src/state-machine";
+export { Transition } from "./src/transition";
