@@ -5,4 +5,5 @@ src/*.js.map
 example/*.js.map
 node_modules/
 bower_components/
+out/
 src/typestate-node.ts

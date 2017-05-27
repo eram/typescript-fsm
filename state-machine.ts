@@ -49,32 +49,28 @@ export class StateMachine<STATE, EVENT> {
     public go(event: EVENT, ...args: any[]): boolean {
 
         // find transition
-        let i = 0;
-        for (; i < this.transitions.length; i++) {
-            const trans = this.transitions[i];
-            if (trans.fromState === this.current && trans.event === event){
-                break;
+        for (const tran of this.transitions){
+
+            if (tran.fromState === this.current && tran.event === event){
+
+                // run transition callback and act on promise
+                tran.cb(args).then((res: number) => {
+
+                    // check results, update state and call hooks
+                    if (!res) {
+                        this.current = tran.toState;
+                        if (this.hookAfterChange) { this.hookAfterChange(tran); }
+                    } else {
+                        if (this.hookOnFail) { this.hookOnFail(tran, res); }
+                    }
+                });
+
+                return true; // transition in progress
             }
         }
 
-        if (i >= this.transitions.length){
-            return false;  // no such transition
-        }
-
-        // run transition callback and act on promise
-        const trans = this.transitions[i];
-        trans.cb(args).then((res: number) => {
-
-            // check results, update state and call callbacks
-            if (!res) {
-                this.current = trans.toState;
-                if (this.hookAfterChange) { this.hookAfterChange(trans); }
-            } else {
-                if (this.hookOnFail) { this.hookOnFail(trans, res); }
-            }
-        });
-
-        return true; // transition in progress
+        // no such transition
+        return false;  
     }
 
 }

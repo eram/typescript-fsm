@@ -115,9 +115,7 @@ class Door {
 
 // --- tests ---
 
-function test(tstIdx = 0): void {
-
-    const tests = [
+const tests = [
         [
             "test opening a closed door", 0, () => {
                 console.assert(false === door.isBroken());
@@ -167,9 +165,9 @@ function test(tstIdx = 0): void {
                 process.exit(0);
             }
         ]
+    ];
 
-    ]
-
+function runTest(tstIdx = 0): void {
 
     if (tstIdx >= tests.length) {
         return;
@@ -179,13 +177,13 @@ function test(tstIdx = 0): void {
 
     const name = a[0] as string;
     const timeout = a[1] as number;
-    const f = a[2] as () => void
+    const test = a[2] as () => void
 
     setTimeout(() => {
 
         console.log(name + " (" + timeout + ")");
-        f();
-        test(++tstIdx);
+        test();
+        runTest(++tstIdx);
 
     }, timeout);
 }
@@ -198,4 +196,4 @@ console.log("main door...")
 // debugger;
 
 const door = new Door();
-test();
+runTest();
