@@ -10,7 +10,7 @@ import { Transition, StateMachine } from "./";
 enum States { closed, opened, broken };
 enum Events { open, close, break };
 
-class Trans2 extends Transition<States, Events> {
+class Tran extends Transition<States, Events> {
 
     toString(): string {
         return Events[this.fromState as States] + "|" + Events[this.event as Events] 
@@ -29,12 +29,12 @@ class Door {
 
     constructor() {
 
-        const trans: Trans2[] = [
+        const trans: Tran[] = [
             /*          fromState       event           callback        toState     */
-            new Trans2(States.closed, Events.open, this.onOpen, States.opened),
-            new Trans2(States.opened, Events.close, this.onClose, States.closed),
-            new Trans2(States.opened, Events.break, this.onBreak, States.broken),
-            new Trans2(States.closed, Events.break, this.onBreak, States.broken)
+            new Tran(States.closed, Events.open, this.onOpen, States.opened),
+            new Tran(States.opened, Events.close, this.onClose, States.closed),
+            new Tran(States.opened, Events.break, this.onBreak, States.broken),
+            new Tran(States.closed, Events.break, this.onBreak, States.broken)
         ];
 
         this.fsm = new StateMachine<States, Events>(States.closed, trans, this.hookAfterChange, this.hookOnFail);
@@ -53,11 +53,11 @@ class Door {
 
     // privates methods
 
-    private hookAfterChange(trans: Trans2): void {
+    private hookAfterChange(trans: Tran): void {
         console.log("hookAfterChange:" + trans);
     }
 
-    private hookOnFail(trans: Trans2, res: number): void {
+    private hookOnFail(trans: Tran, res: number): void {
         console.log("hookOnFail:" + trans + " res:" + res);
     }
 

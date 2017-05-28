@@ -65,15 +65,16 @@ const door = new StateMachine<States, Events>(
 // the actions are async and return a promise:
 function onOpen(...args: any[]): Promise<number> {
 
-   console.log("onOpen...");
-   const p = new Promise<number>((resolve, reject) => {
+    console.log("onOpen...");
+    const p = new Promise<number>((resolve, reject) => {
 
-   // do something async and resolve the pronise when done
-   setTimeout(() => {
-      resolve(0);		// 0 for success - will move to next state
-   }, 200);
+        // do something async and resolve the pronise when done
+        setTimeout(() => {
+            resolve(0);		// 0 for success - will move to next state
+        }, 200);
+    });
 
-   return p;
+    return p;
 }
 
 // onClose() and onBreak() functions are very similar to onOpen().
