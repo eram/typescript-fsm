@@ -1,15 +1,8 @@
 {
   "name": "ts-fsm",
-  "version": "0.4.0",
-  "description": "finite state machine using promises ",
-  "main": "test.js",
-  "dependencies": {},
-  "devDependencies": {
-    "@types/node": "^7.0.22"
-  },
-  "scripts": {
-    "test": "tsc && node ./out/test"
-  },
+  "version": "1.0.0",
+  "description": "finite state machine using promises",
+  "main": "./build/dist/index.js",
   "keywords": [
     "fsm",
     "state-machine",
@@ -17,6 +10,28 @@
     "typescript",
     "generics"
   ],
-  "author": "ethanram@gmail.com",
-  "license": "ISC"
+  "author": "eram@weblegions.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eram/ts-fsm/issues"
+  },
+  "homepage": "https://github.com/eram/ts-fsm#readme",
+  "typings": "./build/dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p ./config/tsconfig.release.json --pretty",
+    "test": "jest --coverage --no-cache --config ./config/jest.json",
+    "clean": "rimraf ./build",
+    "pretest": "npm run clean && npm run lint && npm run build",
+    "lint": "tslint --format stylish --config ./config/tslint.json --project ./config/tsconfig.json"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^23.3.4",
+    "@types/node": "^7.0.22",
+    "jest": "^23.6.0",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.4",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.1"
+  }
 }

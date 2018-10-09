@@ -1,0 +1,8 @@
+/node_modules
+/build/debug
+/build/reports
+/config
+/src
+/.vscode
+.travis.yml
+/build/dist/__test__

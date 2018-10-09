@@ -1,8 +1,9 @@
 
-TS State Machine (TS-FSM)
+TypeScript State Machine (TS-FSM)
 ==========================
 
-TS-FSM is a strongly typed finite state machine for TypeScript that is using Promises for async operations. Finite state machines are useful for modeling complicated flows and keeping track of state.
+Finite state machines are useful for modeling complicated flows and keeping track of state. TS-FSM is a strongly typed finite state machine for TypeScript that is using promises for async operations. 
+I'm using this state-machine as a simple replacement for redux in some ReactJs based apps. Check it out [here](https://github.com/eram/tfjs-stack-ts/blob/master/client/src/components/server-status-card/statusCardModel.ts)
 
 Features:
 ----------
@@ -13,95 +14,101 @@ Features:
 - Simple tabular state machine defnition
 - Hooks after state change and on error
 - Use on server or NodeJs or client (!IE)
+- 
 
 Installation:
 ----------
-Take the code. I have not had the time to wrap it around with NPM etc. These are the general steps to get the test runing:
-```script
-# npm install -g typescript tslint typings
-# git clone https://github.com/eram/ts-fsm.git
-# cd ts-fsm && npm install
-# npm run test
-```
 
-Files:
 ```script
-transition.ts - holds a base transformation class with generics.
-state-machine.ts - holds a base state-machine class with generics.
-test.ts - usage example and a bunch of tests (not using any test suite!). 
-index.ts - the startard library enty point.
+# git clone https://github.com/eram/ts-fsm.git ts-fsm
+# cd ts-fsm
+# npm install
+# npm test
 ```
-
 Basic Example:
 --------------
-I'm modeling a "door" here. One can open the door, close it or break it. Once broken it reaches a final state. It takes 200ms to open, close or break the door.
+I'm modeling a "door" here. One can open the door, close it or break it. Each action is done asych: when you open it goes into opening state and the resolved to open state etc. Once broken it reaches a final state.
+Note that the same code can be run in Javascript, just remove the generics.
 
 ```typescript
 
-// these are the states and events. 
-enum States { closed, opened, broken };
-enum Events { open, close, break };
+// these are the states and events for the door
+enum States { closing = 0, closed, opening, open, breaking, broken }
+enum Events { open = 100, openComplete, close, closeComplete, break, breakComplete }
 
-class Tran extends Transition<States, Events> {}; // sugar
-
-// this is the state machine - an array of transitions
-const trans: Tran[] = [
-   //          fromState      event         callback    toState
-   new Transition( States.closed, Events.open,  onOpen, 	States.opened   ),
-   new Transition( States.opened, Events.close, onClose, 	States.closed   ),
-   new Transition( States.opened, Events.break, onBreak, 	States.broken   ),
-   new Transition( States.closed, Events.break, onBreak, 	States.broken   )
+// lets define the transitions that will govern the state-machine
+const transitions = [
+    /*      fromState       event                   toState             callback */
+    tFrom(States.closed,    Events.open,            States.opening,     onOpen),
+    tFrom(States.opening,   Events.openComplete,    States.open,        justLog),
+    tFrom(States.open,      Events.close,           States.closing,     onClose),
+    tFrom(States.closing,   Events.closeComplete,   States.closed,      justLog),
+    tFrom(States.open,      Events.break,           States.breaking,    onBreak),
+    tFrom(States.closed,    Events.break,           States.breaking,    onBreak),
+    tFrom(States.breaking,  Events.breakComplete,   States.broken,      justLog),
 ];
 
 // initialize the state machine
 const door = new StateMachine<States, Events>(
    States.closed,   // initial state
-   trans,           // array of transitions 
-   hookAfterChange, // (trans: Transition<STATE, EVENT>) => void,
-   hookOnFail       // (trans: Transition<STATE, EVENT>, res: number) => void
+   transitions,     // array of transitions 
 );
 
 
 // the actions are async and return a promise:
-function onOpen(...args: any[]): Promise<number> {
+// transition callbacks
+function onOpen(): Promise<void> {
 
     console.log("onOpen...");
-    const p = new Promise<number>((resolve, reject) => {
+    return door.dispatch(Events.openComplete);
+}
 
-        // do something async and resolve the pronise when done
-        setTimeout(() => {
-            resolve(0);		// 0 for success - will move to next state
-        }, 200);
+function onClose(): Promise<void> {
+
+    console.log("onClose...");
+    return door.dispatch(Events.closeComplete);
+}
+
+function onBreak(): Promise<void> {
+
+    console.log("onBreak...");
+    return door.dispatch(Events.breakComplete);
+}
+
+// synchronous callbck is also ok
+function justLog(): void { 
+    console.log(`${States[door.getState()]}`);
+}
+
+// we are ready for action - run a few state-machine steps...
+new Promise(async (resolve) => {
+
+    // open the door and wait for it to be open
+    await door.dispatch(Events.open);
+    door.getState(); // => States.open
+
+    // check if the door can be closed
+    door.can(Events.close); // => true
+
+    // break the door async
+    door.dispatch(Events.break).then(() => {
+        // did we get to a finite state?
+        door.isFinal(); // => true 
     });
 
-    return p;
-}
+    // door is now in breaking. It cannot be closed...
+    try {
+        await door.dispatch(Events.close);
+        assert("should not get here!");
+    } catch (e) {
+        // we're good
+    }
 
-// onClose() and onBreak() functions are very similar to onOpen().
-
-// here are the hook callbacks - these are synchronous
-function hookAfterChange(tran: Tran): void {
-   console.log("transition successful:" + tran);
-}
-
-function hookOnFail(tran: Tran, res: number): void {
-   console.log("transition failed:" + tran + " res:" + res);
-}
-
-// we are ready for action:
-
-door.getState() ;           // === States.closed
-door.can(Events.open) ;     // === true
-
-door.go(Events.open);       // start an async open 
-           // - will call onOpen() immediately
-           // - will call hookAfterChange() when promise is resolved
-
-// ...200ms later:
-door.getSate() ;            // === States.opened
-door.isFinal()	;           // === false. this becomes true after you break the door.
+    // let the async break complete
+    setTimeout(resolve, 100);
+});
 
 ```
+
 Beautiful!
 Comments and suggestions are welcome.
-
