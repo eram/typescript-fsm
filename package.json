@@ -1,8 +1,10 @@
 {
   "name": "ts-fsm",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "finite state machine using promises",
-  "main": "./build/dist/index.js",
+  "main": "./dist/stateMachine.js",
+  "typings": "./dist/stateMachine.d.ts",
+  "private": "false",
   "keywords": [
     "fsm",
     "state-machine",
@@ -10,28 +12,40 @@
     "typescript",
     "generics"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eram/ts-fsm.git"
+  },
+  "engine": {
+    "node": ">=14"
+  },
   "author": "eram@weblegions.com",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/eram/ts-fsm/issues"
   },
   "homepage": "https://github.com/eram/ts-fsm#readme",
-  "typings": "./build/dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p ./config/tsconfig.release.json --pretty",
-    "test": "jest --coverage --no-cache --config ./config/jest.json",
-    "clean": "rimraf ./build",
-    "pretest": "npm run clean && npm run lint && npm run build",
-    "lint": "tslint --format stylish --config ./config/tslint.json --project ./config/tsconfig.json"
+    "build": "npm run lint && tsc --pretty",
+    "test": "eslint --color src/**/*.ts && jest --coverage --silent",
+    "clean": "rimraf coverage *.log logs dist coverage",
+    "lint": "eslint --color --fix src/**/*.ts && echo Lint complete.",
+    "jest": "jest --watch"
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/jest": "^23.3.4",
-    "@types/node": "^7.0.22",
-    "jest": "^23.6.0",
-    "rimraf": "^2.6.2",
-    "ts-jest": "^23.10.4",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.1"
+    "@types/jest": "^27.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.19.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-plugin-filenames": "^1.3.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-sonarjs": "^0.5.0",
+    "jest": "^27.4.4",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^27.1.1",
+    "typescript": "^3.9.10"
   }
 }

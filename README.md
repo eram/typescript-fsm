@@ -29,7 +29,7 @@ Installation:
 ```
 Basic Example:
 --------------
-I'm modeling a "door" here. One can open the door, close it or break it. Each action is done asych: when you open it goes into opening state and the resolved to open state etc. Once broken it reaches a final state.
+I'm modeling a "door" here. One can open the door, close it or break it. Each action is done asych: when you open it goes into opening state and then resolved to open state etc. Once broken, it reaches a final state.
 Note that the same code can be run in Javascript, just remove the generics.
 
 ```typescript
@@ -106,7 +106,7 @@ new Promise(async (resolve) => {
         // we're good
     }
 
-    // let the async break complete
+    // let the async breaking complete
     setTimeout(resolve, 100);
 });
 

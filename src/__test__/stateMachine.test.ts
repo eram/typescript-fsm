@@ -1,146 +1,124 @@
-import { tFrom, StateMachine } from "../";
+import { tFrom, StateMachine } from "../stateMachine";
 
 enum States { closing = 0, closed, opening, open, breaking, broken }
 enum Events { open = 100, openComplete, close, closeComplete, break, breakComplete }
 
 class Door extends StateMachine<States, Events> {
 
-    private id = `Door${(Math.floor(Math.random() * 10000))}`;
+  private readonly _id = `Door${(Math.floor(Math.random() * 10000))}`;
 
-    // ctor
-    constructor(init: States = States.closed) {
+  // ctor
+  constructor(init: States = States.closed) {
 
-        super(init);
+    super(init);
 
-        this.addTransitions([
-            /*   fromState       event           toState         callback */
-            tFrom(States.closed, Events.open, States.opening, this.onOpen.bind(this)),
-            tFrom(States.opening, Events.openComplete, States.open, this.justLog.bind(this)),
-            tFrom(States.open, Events.close, States.closing, this.onClose.bind(this)),
-            tFrom(States.closing, Events.closeComplete, States.closed, this.justLog.bind(this)),
-            tFrom(States.open, Events.break, States.breaking, this.onBreak.bind(this)),
-            tFrom(States.breaking, Events.breakComplete, States.broken),
-            tFrom(States.closed, Events.break, States.breaking, this.onBreak.bind(this)),
-            tFrom(States.breaking, Events.breakComplete, States.broken),
-        ]);
-    }
+    const s = States;
+    const e = Events;
 
-    // public methods
+    /* eslint-disable no-multi-spaces */
+    this.addTransitions([
+      //    fromState    event            toState      callback
+      tFrom(s.closed,    e.open,          s.opening,   this._onOpen.bind(this)),
+      tFrom(s.opening,   e.openComplete,  s.open,      this._justLog.bind(this)),
+      tFrom(s.open,      e.close,         s.closing,   this._onClose.bind(this)),
+      tFrom(s.closing,   e.closeComplete, s.closed,    this._justLog.bind(this)),
+      tFrom(s.open,      e.break,         s.breaking,  this._onBreak.bind(this)),
+      tFrom(s.breaking,  e.breakComplete, s.broken),
+      tFrom(s.closed,    e.break,         s.breaking,  this._onBreak.bind(this)),
+      tFrom(s.breaking,  e.breakComplete, s.broken),
+    ]);
+    /* eslint-enable no-multi-spaces */
+  }
 
-    open() { return this.dispatch(Events.open); }
-    close() { return this.dispatch(Events.close); }
-    break() { return this.dispatch(Events.break); }
+  // public methods
+  async open() { return this.dispatch(Events.open); }
 
-    isBroken(): boolean { return this.isFinal(); }
-    isOpen(): boolean { return this.getState() === States.open; }
+  async close() { return this.dispatch(Events.close); }
 
-    // transition callbacks
-    private onOpen(): Promise<void> {
+  async break() { return this.dispatch(Events.break); }
 
-        console.log(`${this.id} onOpen...`);
-        return this.dispatch(Events.openComplete);
-    }
+  isBroken(): boolean { return this.isFinal(); }
 
-    private onClose(): Promise<void> {
+  isOpen(): boolean { return this.getState() === States.open; }
 
-        console.log(`${this.id} onClose...`);
-        return this.dispatch(Events.closeComplete);
-    }
+  // transition callbacks
+  private async _onOpen() {
+    console.log(`${this._id} onOpen...`);
+    return this.dispatch(Events.openComplete);
+  }
 
-    private onBreak(): Promise<void> {
+  private async _onClose() {
+    console.log(`${this._id} onClose...`);
+    return this.dispatch(Events.closeComplete);
+  }
 
-        console.log(`${this.id} onBreak...`);
-        return this.dispatch(Events.breakComplete);
-    }
+  private async _onBreak() {
+    console.log(`${this._id} onBreak...`);
+    return this.dispatch(Events.breakComplete);
+  }
 
-    private justLog(): void {
-        console.log(`${this.id} ${States[this.getState()]}`);
-    }
-}
-
-
-function sleep(timeout: number): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(resolve, timeout);
-    });
+  private async _justLog() {
+    console.log(`${this._id} ${States[this.getState()]}`);
+    return Promise.resolve();
+  }
 }
 
 describe("stateMachine tests", () => {
 
-    test("test opening a closed door", async () => {
-        const door = new Door();
+  test("test opening a closed door", async () => {
+    const door = new Door();
 
-        expect(door.isOpen()).toBeFalsy();
-        expect(door.isBroken()).toBeFalsy();
-        expect(door.can(Events.open)).toBeTruthy();
+    expect(door.isOpen()).toBeFalsy();
+    expect(door.isBroken()).toBeFalsy();
+    expect(door.can(Events.open)).toBeTruthy();
 
-        await door.open();
-        expect(door.isOpen()).toBeTruthy();
+    await door.open();
+    expect(door.isOpen()).toBeTruthy();
+  });
+
+  test("test a failed event", (done) => {
+    const door = new Door(States.open);
+    expect(door.can(Events.open)).toBeFalsy();
+
+    door.open().then(() => {
+      expect("should never get here 1").toBeFalsy();
+    }).catch(() => {
+      // we are good.
+      done();
     });
+  });
 
-    test("test a failed event", (done) => {
-        const door = new Door(States.open);
-        expect(door.can(Events.open)).toBeFalsy();
+  test("test closing an open door", async () => {
+    const door = new Door(States.open);
+    expect(door.isOpen()).toBeTruthy();
 
-        door.open().then(() => {
-            expect("should never get here").toBeFalsy();
-        }).catch(() => {
-            // we are good.
-            done();
-        });
-    });
+    await door.close();
+    expect(door.isOpen()).toBeFalsy();
+  });
 
-    test("test closing an open door", async () => {
-        const door = new Door(States.open);
-        expect(door.isOpen()).toBeTruthy();
+  test("test breaking a door", async () => {
+    const door = new Door();
+    expect(door.isBroken()).toBeFalsy();
 
-        door.close();
-        await sleep(200);
-        expect(door.isOpen()).toBeFalsy();
-    });
+    await door.break();
+    expect(door.isBroken()).toBeTruthy();
+    expect(door.isOpen()).toBeFalsy();
+  });
 
-    test("test breaking a door", (done) => {
-        const door = new Door();
-        expect(door.isBroken()).toBeFalsy();
+  test("broken door cannot be opened or closed", async () => {
+    const door = new Door(States.broken);
+    expect(door.isBroken()).toBeTruthy();
 
-        door.break().then(() => {
-            expect(door.isBroken()).toBeTruthy();
-            expect(door.isOpen()).toBeFalsy();
-            done();
-        });
-    });
+    await expect(door.open()).rejects.toEqual(undefined);
+  });
 
-    test("broken door cannot be opened or closed", (done) => {
-        const door = new Door(States.broken);
-        expect(door.isBroken()).toBeTruthy();
+  test("should throw on intermediate state", async () => {
+    const door = new Door(States.open);
+    expect(door.isOpen()).toBeTruthy();
 
-        door.open().then(() => {
-            expect("should never get here").toBeFalsy();
-        }).catch(() => {
-            // we are good.
-        });
-
-        door.close().then(() => {
-            expect("should never get here").toBeFalsy();
-        }).catch(() => {
-            // we are good.
-            done();
-        });
-    });
-
-    test("should throw on intermediate state", (done) => {
-        const door = new Door(States.open);
-        expect(door.isOpen()).toBeTruthy();
-
-        /* dont await */
-        door.close();
-        expect(door.isOpen()).toBeTruthy();
-        door.break().then(() => {
-            expect("should never get here").toBeFalsy();
-        }).catch(() => {
-            // we are good.
-            done();
-        });
-    });
+    const prms = /* dont await */ door.close();
+    expect(door.isOpen()).toBeTruthy();
+    await expect(door.break()).rejects.toEqual(undefined);
+    await prms;
+  });
 });
-

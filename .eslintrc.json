@@ -1,0 +1,100 @@
+{
+  "extends": [
+    "airbnb-typescript/base",
+    "plugin:sonarjs/recommended"
+  ],
+  "plugins": [
+    "no-null",
+    "@typescript-eslint",
+    "filenames",
+    "sonarjs"
+  ],
+  "env": {
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "no-null/no-null": "error",
+    "sonarjs/cognitive-complexity": ["error", 30],
+    "sonarjs/no-unused-collection": "off",
+    "sonarjs/prefer-immediate-return": "off",
+    "filenames/match-regex": [2, "^[a-z]+.*[a-z]*$"],
+    "filenames/match-exported": 2,
+    "max-classes-per-file": "off",
+    "max-len": ["error", { "code": 125, "ignoreUrls": true, "ignoreTemplateLiterals": true, "ignoreStrings": true }],
+    "import/prefer-default-export": "off",
+    "no-underscore-dangle": "off",
+    "function-paren-newline": "off",
+    "class-methods-use-this": "off",
+    "no-param-reassign": "off",
+    "no-plusplus": "off",
+    "no-multi-assign": "off",
+    "prefer-destructuring": "off",
+    "no-console": "off",
+    "padded-blocks": "off",
+    "no-void": ["error", { "allowAsStatement": true }],
+    "arrow-parens": "off",
+    "no-cond-assign": "off",
+    "no-multiple-empty-lines": ["error", { "max": 2 }],
+    "no-multi-spaces": ["error", { "ignoreEOLComments": true, "exceptions": { "Property": false } }],
+    "key-spacing": "off",
+    "no-nested-ternary": "off",
+    "radix": "off",
+    "object-curly-newline":"off",
+    "object-property-newline":"off",
+    "no-spaced-func": "off",
+    "linebreak-style": "off",
+    "no-constant-condition": "off",
+    "@typescript-eslint/no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true }],
+    "quotes": "off",
+    "@typescript-eslint/quotes": ["error", "double"],
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
+    "@typescript-eslint/no-explicit-any": "error",
+    "lines-between-class-members": "off",
+    "@typescript-eslint/lines-between-class-members": "off",
+    "@typescript-eslint/no-floating-promises": ["error"],
+    "@typescript-eslint/naming-convention":["error",
+        {
+          "selector": "default",
+          "format": ["camelCase", "UPPER_CASE"],
+          "leadingUnderscore": "allow",
+          "trailingUnderscore": "allow"
+        },
+        {
+          "selector": "variable",
+          "format": ["camelCase", "UPPER_CASE"],
+          "leadingUnderscore": "allow",
+          "trailingUnderscore": "allow"
+        },
+        {
+          "selector": "parameter",
+          "format": ["camelCase"],
+          "leadingUnderscore": "allow",
+          "trailingUnderscore": "allow"
+        },
+        {
+          "selector": "memberLike",
+          "modifiers": ["private"],
+          "format": ["camelCase"],
+          "leadingUnderscore": "require"
+        },
+        {
+          "selector": "typeLike",
+          "format": ["PascalCase"]
+        },
+        {
+          "selector": "interface",
+          "format": ["PascalCase"],
+          "custom": {
+            "regex": "^I[A-Z]",
+            "match": true
+          }
+        }
+     ]
+  }
+}

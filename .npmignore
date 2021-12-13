@@ -6,3 +6,4 @@
 /.vscode
 .travis.yml
 /build/dist/__test__
+/dist

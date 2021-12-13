@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2020",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    "noImplicitAny": true,
+    "declaration": true,
+  },
+  "include": [
+    "src/**/*",
+    "*.config.js",
+    "src/**/index.js",
+    "public/**/*.js",
+    "scripts/*.js",
+    "scripts/*.ts",
+  ]
+}
