@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/eram/ts-fsm.svg?branch=master)](https://travis-ci.org/eram/ts-fsm)   [![npm package](https://badge.fury.io/js/ts-fsm.svg)](https://www.npmjs.com/package/ts-fsm) 
+[![Build Status](https://app.travis-ci.com/eram/ts-fsm.svg?branch=master)](https://app.travis-ci.com/github/eram/ts-fsm)   [![npm package](https://badge.fury.io/js/ts-fsm.svg)](https://www.npmjs.com/package/ts-fsm) 
 <img src="https://forthebadge.com/images/badges/winter-is-coming.svg" alt="be prepared!" height="20"/>
 
 TypeScript State Machine (TS-FSM)
