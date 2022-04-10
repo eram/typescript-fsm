@@ -16,7 +16,6 @@ Features:
 - Simple tabular state machine defnition
 - Hooks after state change and on error
 - Use on server or NodeJs or client (!IE)
-- 
 
 Installation:
 ----------
