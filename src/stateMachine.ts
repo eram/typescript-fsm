@@ -3,7 +3,8 @@
  * TypeScript finite state machine class with async transformations using promises.
  */
 
-export type Callback = ((...args: unknown[]) => Promise<void>) | ((...args: unknown[]) => void) | undefined;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Callback = ((...args: any[]) => Promise<void>) | ((...args: any[]) => void) | undefined;
 
 export interface ITransition<STATE, EVENT> {
   fromState: STATE;
@@ -14,7 +15,7 @@ export interface ITransition<STATE, EVENT> {
 
 export function t<STATE, EVENT>(
   fromState: STATE, event: EVENT, toState: STATE,
-  cb?: Callback) {
+  cb?: Callback): ITransition<STATE, EVENT> {
   return { fromState, event, toState, cb };
 }
 
@@ -71,7 +72,6 @@ export class StateMachine<STATE, EVENT> {
                 if (p instanceof Promise) {
                   p.then(resolve).catch((e: Error) => reject(e));
                 } else {
-                  void tran.cb(...args);
                   resolve();
                 }
               } catch (e) {
@@ -88,7 +88,7 @@ export class StateMachine<STATE, EVENT> {
 
         // no such transition
         if (!found) {
-          console.error(`No transition: from ${me._current.toString()} event ${event.toString()}`);
+          console.error(`No transition: from ${me._current} event ${event}`);
           reject();
         }
       }, 0, this);

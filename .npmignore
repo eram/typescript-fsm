@@ -1,9 +1,11 @@
 /node_modules
-/build/debug
-/build/reports
 /config
+/coverage
 /src
 /.vscode
 .travis.yml
-/build/dist/__test__
-/dist
+/dist/__test__
+
+*.env
+*.config.js
+*.log

@@ -36,7 +36,7 @@
     "prefer-destructuring": "off",
     "no-console": "off",
     "padded-blocks": "off",
-    "no-void": ["error", { "allowAsStatement": true }],
+    "no-void": "error",
     "arrow-parens": "off",
     "no-cond-assign": "off",
     "no-multiple-empty-lines": ["error", { "max": 2 }],
