@@ -60,20 +60,18 @@ const door = new StateMachine<States, Events>(
 );
 
 // transition callbacks - async functions
-function onOpen(): Promise<void> {
-
+async function onOpen() {
     console.log("onOpen...");
     return door.dispatch(Events.openComplete);
 }
 
-function onClose(): Promise<void> {
-
+async function onClose() {
     console.log("onClose...");
     return door.dispatch(Events.closeComplete);
 }
 
 // synchronous callbacks are also ok
-function justLog(): void { 
+function justLog() { 
     console.log(`${States[door.getState()]}`);
 }
 
