@@ -10,19 +10,11 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/types"
-    ],
     "noImplicitAny": true,
     "declaration": true,
   },
   "include": [
     "src/**/*",
     "*.config.js",
-    "src/**/index.js",
-    "public/**/*.js",
-    "scripts/*.js",
-    "scripts/*.ts",
   ]
 }
