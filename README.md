@@ -27,6 +27,7 @@ I'm using this state-machine as a simple replacement for Redux in some ReactJs b
   ```
 
 ## Use it
+
   ```script
   npm install typescript-fsm
  ```
