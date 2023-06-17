@@ -26,6 +26,11 @@ I'm using this state-machine as a simple replacement for Redux in some ReactJs b
   # npm test
   ```
 
+## Use it
+  ```script
+  npm install typescript-fsm
+ ```
+
 ## Basic Example
 
 I'm modeling a "door" here. One can open the door, close it or break it. Each action is done async: when you open it goes into opening state and then resolved to opened state etc. Once broken, it reaches a final state.
@@ -35,6 +40,7 @@ I'm modeling a "door" here. One can open the door, close it or break it. Each ac
 Let's code it in Typescript! Note that the same code can be run in Javascript, just remove the generics.
 
 ```typescript
+import { t, StateMachine } from "typescript-fsm";
 
 // these are the states and events for the door
 enum States { closing = 0, closed, opening, opened, broken };
