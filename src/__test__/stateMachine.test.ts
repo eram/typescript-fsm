@@ -1,16 +1,24 @@
 import { tFrom, StateMachine } from "../stateMachine";
 
-enum States { closing = 0, closed, opening, open, breaking, broken }
-enum Events { open = 100, openComplete, close, closeComplete, break, breakComplete }
+enum States { closing = 0, closed, opening, open, breaking, broken, locking, locked, unlocking }
+enum Events {
+  open = 100, openComplete,
+  close, closeComplete,
+  break, breakComplete,
+  lock, lockComplete,
+  unlock, unlockComplete, unlockFailed,
+}
 
 class Door extends StateMachine<States, Events> {
 
   private readonly _id = `Door${(Math.floor(Math.random() * 10000))}`;
+  private readonly _key: number;
 
   // ctor
-  constructor(init: States = States.closed) {
+  constructor(key: number = 0, init: States = States.closed) {
 
     super(init);
+    this._key = key;
 
     const s = States;
     const e = Events;
@@ -26,6 +34,11 @@ class Door extends StateMachine<States, Events> {
       tFrom(s.breaking,  e.breakComplete, s.broken),
       tFrom(s.closed,    e.break,         s.breaking,  this._onBreak.bind(this)),
       tFrom(s.breaking,  e.breakComplete, s.broken),
+      tFrom(s.closed, e.lock, s.locking, this._onLock.bind(this)),
+      tFrom(s.locking, e.lockComplete, s.locked, this._justLog.bind(this)),
+      tFrom(s.locked, e.unlock, s.unlocking, this._onUnlock.bind(this)),
+      tFrom(s.unlocking, e.unlockComplete, s.closed, this._justLog.bind(this)),
+      tFrom(s.unlocking, e.unlockFailed, s.locked, this._justLog.bind(this)),
     ]);
     /* eslint-enable no-multi-spaces */
   }
@@ -37,9 +50,15 @@ class Door extends StateMachine<States, Events> {
 
   async break() { return this.dispatch(Events.break); }
 
+  async lock() { return this.dispatch(Events.lock); }
+
+  async unlock(key: number) { return this.dispatch(Events.unlock, key); }
+
   isBroken(): boolean { return this.isFinal(); }
 
   isOpen(): boolean { return this.getState() === States.open; }
+
+  isLocked(): boolean { return this.getState() === States.locked; }
 
   // transition callbacks
   private async _onOpen() {
@@ -55,6 +74,20 @@ class Door extends StateMachine<States, Events> {
   private async _onBreak() {
     console.log(`${this._id} onBreak...`);
     return this.dispatch(Events.breakComplete);
+  }
+
+  private async _onLock() {
+    console.log(`${this._id} onLock...`);
+    return this.dispatch(Events.lockComplete);
+  }
+
+  private async _onUnlock(key: number) {
+    console.log(`${this._id} onUnlock with key=${key}...`);
+    if (key === this._key) {
+      return this.dispatch(Events.unlockComplete);
+    }
+    await this.dispatch(Events.unlockFailed);
+    throw new Error(`${key} failed to unlock ${this._id}`);
   }
 
   private async _justLog() {
@@ -77,7 +110,7 @@ describe("stateMachine tests", () => {
   });
 
   test("test a failed event", (done) => {
-    const door = new Door(States.open);
+    const door = new Door(undefined, States.open);
     expect(door.can(Events.open)).toBeFalsy();
 
     door.open().then(() => {
@@ -89,7 +122,7 @@ describe("stateMachine tests", () => {
   });
 
   test("test closing an open door", async () => {
-    const door = new Door(States.open);
+    const door = new Door(undefined, States.open);
     expect(door.isOpen()).toBeTruthy();
 
     await door.close();
@@ -106,19 +139,38 @@ describe("stateMachine tests", () => {
   });
 
   test("broken door cannot be opened or closed", async () => {
-    const door = new Door(States.broken);
+    const door = new Door(undefined, States.broken);
     expect(door.isBroken()).toBeTruthy();
 
     await expect(door.open()).rejects.toEqual(undefined);
   });
 
   test("should throw on intermediate state", async () => {
-    const door = new Door(States.open);
+    const door = new Door(undefined, States.open);
     expect(door.isOpen()).toBeTruthy();
 
     const prms = /* dont await */ door.close();
     expect(door.isOpen()).toBeTruthy();
     await expect(door.break()).rejects.toEqual(undefined);
     await prms;
+  });
+
+  test("should unlock with correct key", async () => {
+    const key = 12345;
+    const door = new Door(key, States.locked);
+    await door.unlock(key);
+    expect(door.isLocked()).toBeFalsy();
+  });
+
+  test("should not unlock with incorrect key", async () => {
+    const key = 12345;
+    const door = new Door(key, States.locked);
+
+    try {
+      await door.unlock(key + 3);
+      expect("should never get here 1").toBeFalsy();
+    } catch {
+      expect(door.isLocked()).toBeTruthy();
+    }
   });
 });

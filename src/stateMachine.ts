@@ -57,7 +57,7 @@ export class StateMachine<STATE, EVENT> {
             me.current = tran.toState;
             if (tran.cb) {
               try {
-                tran.cb(args)
+                tran.cb(...args)
                   .then(resolve)
                   .catch(reject);
               } catch (e) {
