@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/eram/ts-fsm.git"
+    "url": "https://github.com/eram/typescript-fsm.git"
   },
   "engine": {
     "node": ">=14"
@@ -21,9 +21,9 @@
   "author": "eram@weblegions.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/eram/ts-fsm/issues"
+    "url": "https://github.com/eram/typescript-fsm/issues"
   },
-  "homepage": "https://github.com/eram/ts-fsm#readme",
+  "homepage": "https://github.com/eram/typescript-fsm#readme",
   "scripts": {
     "build": "npm run lint && tsc --pretty",
     "test": "eslint --color src/**/*.ts && jest --coverage",

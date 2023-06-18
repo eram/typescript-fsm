@@ -1,7 +1,7 @@
-# TypeScript State Machine (TS-FSM)
+# TypeScript State Machine (typescript-fsm)
 
-[![Build Status](https://app.travis-ci.com/eram/ts-fsm.svg?branch=master)](https://app.travis-ci.com/github/eram/ts-fsm)
-[![npm package](https://badge.fury.io/js/ts-fsm.svg)](https://www.npmjs.com/package/ts-fsm)
+[![Build Status](https://app.travis-ci.com/eram/typescript-fsm.svg?branch=master)](https://app.travis-ci.com/github/eram/typescript-fsm)
+[![npm package](https://badge.fury.io/js/typescript-fsm.svg)](https://www.npmjs.com/package/typescript-fsm)
 <img src="https://forthebadge.com/images/badges/winter-is-coming.svg" alt="It's already here!" height="20"/>
 
 Finite state machines are useful for modeling complicated flows and keeping track of state. TS-FSM is a strongly typed finite state machine for TypeScript that is using promises for async operations.
@@ -20,8 +20,8 @@ I'm using this state-machine as a simple replacement for Redux in some ReactJs b
 ## Get it
 
   ```script
-  # git clone https://github.com/eram/ts-fsm.git
-  # cd ts-fsm
+  # git clone https://github.com/eram/typescript-fsm.git
+  # cd typescript-fsm
   # npm install
   # npm test
   ```
@@ -114,8 +114,8 @@ new Promise(async (resolve) => {
 
 ## Another example
 
-Check out [the test code](https://github.com/eram/ts-fsm/blob/master/src/__test__/stateMachine.test.ts) - a class that implements a state machine with method binding, method params and more transitions. 100% coverage here!
+Check out [the test code](https://github.com/eram/typescript-fsm/blob/master/src/__test__/stateMachine.test.ts) - a class that implements a state machine with method binding, method params and more transitions. 100% coverage here!
 
 ## Beautiful :-)
 
-Comments and suggestions are [welcome](https://github.com/eram/ts-fsm/issues).
+Comments and suggestions are [welcome](https://github.com/eram/typescript-fsm/issues).
