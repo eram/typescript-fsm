@@ -1,4 +1,4 @@
-import { t, StateMachine } from "../stateMachine";
+import { t, StateMachine, Callback } from "../stateMachine";
 
 enum States { closing = 0, closed, opening, opened, breaking, broken, locking, locked, unlocking }
 enum Events {
@@ -8,8 +8,11 @@ enum Events {
   lock, lockComplete,
   unlock, unlockComplete, unlockFailed,
 }
+interface ICallbacks extends Record<Events, Callback> {
+  [Events.unlock]: (key: number) => void;
+}
 
-class Door extends StateMachine<States, Events> {
+class Door extends StateMachine<States, Events, ICallbacks> {
 
   private readonly _id = `Door${(Math.floor(Math.random() * 10000))}`;
   private readonly _key: number;
