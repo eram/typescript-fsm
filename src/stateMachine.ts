@@ -6,36 +6,36 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Callback = ((...args: any[]) => Promise<void>) | ((...args: any[]) => void) | undefined;
 
-export interface ITransition<STATE, EVENT> {
+export interface ITransition<STATE, EVENT, CALLBACK extends Callback> {
   fromState: STATE;
   event: EVENT;
   toState: STATE;
-  cb: Callback;
+  cb: CALLBACK;
 }
 
-export function t<STATE, EVENT>(
+export function t<STATE, EVENT, CALLBACK extends Callback>(
   fromState: STATE, event: EVENT, toState: STATE,
-  cb?: Callback): ITransition<STATE, EVENT> {
+  cb?: CALLBACK): ITransition<STATE, EVENT, CALLBACK> {
   return { fromState, event, toState, cb };
 }
 
-export class StateMachine<STATE, EVENT> {
+export class StateMachine<STATE, EVENT extends string | number | symbol, CALLBACKS extends Record<EVENT, Callback> = Record<EVENT, Callback>> {
 
   protected _current: STATE;
 
   // initialize the state-machine
   constructor(
     _init: STATE,
-    protected transitions: ITransition<STATE, EVENT>[] = [],
+    protected transitions: ITransition<STATE, EVENT, CALLBACKS[EVENT]>[] = [],
   ) {
     this._current = _init;
   }
 
-  addTransitions(transitions: ITransition<STATE, EVENT>[]): void {
+  addTransitions(transitions: ITransition<STATE, EVENT, CALLBACKS[EVENT]>[]): void {
 
     // bind any unbound method
     transitions.forEach((_tran) => {
-      const tran: ITransition<STATE, EVENT> = Object.create(_tran);
+      const tran: ITransition<STATE, EVENT, CALLBACKS[EVENT]> = Object.create(_tran);
       if (tran.cb && !tran.cb.name?.startsWith("bound ")) {
         tran.cb = tran.cb.bind(this);
       }
@@ -56,7 +56,7 @@ export class StateMachine<STATE, EVENT> {
   }
 
   // post event async
-  async dispatch(event: EVENT, ...args: unknown[]): Promise<void> {
+  async dispatch<E extends EVENT>(event: E, ...args: Parameters<CALLBACKS[E]>): Promise<void> {
     return new Promise<void>((resolve, reject) => {
 
       // delay execution to make it async
