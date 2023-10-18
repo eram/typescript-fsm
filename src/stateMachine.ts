@@ -6,6 +6,17 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Callback = ((...args: any[]) => Promise<void>) | ((...args: any[]) => void) | undefined;
 
+interface ILogger {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  debug(...msg: any[]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  log(...msg: any[]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  warn(...msg: any[]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error(...msg: any[]): void;
+}
+
 export interface ITransition<STATE, EVENT, CALLBACK extends Callback> {
   fromState: STATE;
   event: EVENT;
@@ -19,7 +30,11 @@ export function t<STATE, EVENT, CALLBACK extends Callback>(
   return { fromState, event, toState, cb };
 }
 
-export class StateMachine<STATE, EVENT extends string | number | symbol, CALLBACKS extends Record<EVENT, Callback> = Record<EVENT, Callback>> {
+export class StateMachine<
+  STATE,
+  EVENT extends string | number | symbol,
+  CALLBACKS extends Record<EVENT, Callback> = Record<EVENT, Callback>,
+> {
 
   protected _current: STATE;
 
@@ -27,6 +42,7 @@ export class StateMachine<STATE, EVENT extends string | number | symbol, CALLBAC
   constructor(
     _init: STATE,
     protected transitions: ITransition<STATE, EVENT, CALLBACKS[EVENT]>[] = [],
+    protected readonly logger: ILogger = console,
   ) {
     this._current = _init;
   }
@@ -47,6 +63,11 @@ export class StateMachine<STATE, EVENT extends string | number | symbol, CALLBAC
 
   can(event: EVENT): boolean {
     return this.transitions.some((trans) => (trans.fromState === this._current && trans.event === event));
+  }
+
+  getNextState(event: EVENT): STATE | undefined {
+    const transition = this.transitions.find((tran) => tran.fromState === this._current && tran.event === event);
+    return transition?.toState;
   }
 
   isFinal(): boolean {
@@ -75,7 +96,7 @@ export class StateMachine<STATE, EVENT extends string | number | symbol, CALLBAC
                   resolve();
                 }
               } catch (e) {
-                console.error("Exception caught in callback", e);
+                this.logger.error("Exception caught in callback", e);
                 reject(e);
               }
             } else {
@@ -88,10 +109,14 @@ export class StateMachine<STATE, EVENT extends string | number | symbol, CALLBAC
 
         // no such transition
         if (!found) {
-          console.error(`No transition: from ${me._current} event ${event}`);
+          this.logger.error(this._formatNoTransitionError(me._current, event));
           reject();
         }
       }, 0, this);
     });
+  }
+
+  private _formatNoTransitionError(fromState: STATE, event: EVENT) {
+    return `No transition: from ${fromState} event ${String(event)}`;
   }
 }

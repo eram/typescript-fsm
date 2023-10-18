@@ -65,27 +65,27 @@ class Door extends StateMachine<States, Events, ICallbacks> {
 
   // transition callbacks
   private async _onOpen() {
-    console.log(`${this._id} onOpen...`);
+    this.logger.log(`${this._id} onOpen...`);
     return this.dispatch(Events.openComplete);
   }
 
   private async _onClose() {
-    console.log(`${this._id} onClose...`);
+    this.logger.log(`${this._id} onClose...`);
     return this.dispatch(Events.closeComplete);
   }
 
   private async _onBreak() {
-    console.log(`${this._id} onBreak...`);
+    this.logger.log(`${this._id} onBreak...`);
     return this.dispatch(Events.breakComplete);
   }
 
   private async _onLock() {
-    console.log(`${this._id} onLock...`);
+    this.logger.log(`${this._id} onLock...`);
     return this.dispatch(Events.lockComplete);
   }
 
   private async _onUnlock(key: number) {
-    console.log(`${this._id} onUnlock with key=${key}...`);
+    this.logger.log(`${this._id} onUnlock with key=${key}...`);
     if (key === this._key) {
       return this.dispatch(Events.unlockComplete);
     }
@@ -108,6 +108,7 @@ describe("stateMachine tests", () => {
     expect(door.isOpen()).toBeFalsy();
     expect(door.isBroken()).toBeFalsy();
     expect(door.can(Events.open)).toBeTruthy();
+    expect(door.getNextState(Events.open)).toEqual(States.opening);
 
     await door.open();
     expect(door.isOpen()).toBeTruthy();
@@ -116,6 +117,8 @@ describe("stateMachine tests", () => {
   test("test a failed event", (done) => {
     const door = new Door(undefined, States.opened);
     expect(door.can(Events.open)).toBeFalsy();
+
+    expect(door.getNextState(Events.open)).toBeUndefined();
 
     door.open().then(() => {
       expect("should never get here 1").toBeFalsy();
