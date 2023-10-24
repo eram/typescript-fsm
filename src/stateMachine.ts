@@ -109,8 +109,9 @@ export class StateMachine<
 
         // no such transition
         if (!found) {
-          this.logger.error(this._formatNoTransitionError(me._current, event));
-          reject();
+          const errorMessage = this._formatNoTransitionError(me._current, event);
+          this.logger.error(errorMessage);
+          reject(new Error(errorMessage));
         }
       }, 0, this);
     });
