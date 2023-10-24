@@ -150,8 +150,7 @@ describe("stateMachine tests", () => {
     expect(door.isBroken()).toBeTruthy();
 
     await expect(door.open()).rejects.toThrowError(
-      `No transition: from ${States.broken} event ${Events.open}`
-    );
+      `No transition: from ${States.broken} event ${Events.open}`);
   });
 
   test("should throw on intermediate state", async () => {
@@ -161,8 +160,7 @@ describe("stateMachine tests", () => {
     const prms = /* don't await */ door.close();
     expect(door.isOpen()).toBeTruthy();
     await expect(door.break()).rejects.toThrowError(
-      `No transition: from ${States.closing} event ${Events.break}`
-    );
+      `No transition: from ${States.closing} event ${Events.break}`);
     await prms;
   });
 
