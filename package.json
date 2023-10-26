@@ -1,6 +1,6 @@
 {
   "name": "typescript-fsm",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "finite state machine with async callbacks",
   "main": "./dist/stateMachine.js",
   "typings": "./dist/stateMachine.d.ts",

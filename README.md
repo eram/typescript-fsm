@@ -5,7 +5,7 @@
 <img src="https://forthebadge.com/images/badges/winter-is-coming.svg" alt="It's already here!" height="20"/>
 
 Finite state machines are useful for modeling complicated flows and keeping track of state. TS-FSM is a strongly typed finite state machine for TypeScript that is using promises for async operations.
-I'm using this state-machine as a simple replacement for Redux in some ReactJs based apps. Example [here](https://github.com/eram/tfjs-stack-ts/blob/master/client/src/components/server-status-card/statusCardModel.ts)
+I'm using this state-machine as a simple replacement for Redux in some ReactJs based apps. Example [here](https://github.com/eram/tensorflow-stack-ts/blob/master/client/src/components/server-status-card/StatusCardModel.ts)
 
 ## Features
 
