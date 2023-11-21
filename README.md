@@ -11,7 +11,7 @@ I'm using this state-machine as a simple replacement for Redux in some ReactJs b
 
 - TypeScript native (compiles to ES6)
 - Only 1 KB (minified) and zero dependencies!!!
-- Hooks after state change - - async of sync callbacks
+- Hooks after state change - - async or sync callbacks
 - Promises are used for async transition completion
 - Generics for states and events types
 - Simple tabular state machine definition
