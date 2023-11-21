@@ -3,37 +3,27 @@
  * TypeScript finite state machine class with async transformations using promises.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Callback = ((...args: any[]) => Promise<void>) | ((...args: any[]) => void) | undefined;
+export type Callback = ((...args: unknown[]) => Promise<void>) | ((...args: unknown[]) => void) | undefined;
 
-interface ILogger {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  debug(...msg: any[]): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  log(...msg: any[]): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  warn(...msg: any[]): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error(...msg: any[]): void;
-}
-
-export interface ITransition<STATE, EVENT, CALLBACK extends Callback> {
+export interface ITransition<STATE, EVENT, CALLBACK> {
   fromState: STATE;
   event: EVENT;
   toState: STATE;
   cb: CALLBACK;
 }
 
-export function t<STATE, EVENT, CALLBACK extends Callback>(
+export function t<STATE, EVENT, CALLBACK>(
   fromState: STATE, event: EVENT, toState: STATE,
   cb?: CALLBACK): ITransition<STATE, EVENT, CALLBACK> {
   return { fromState, event, toState, cb };
 }
 
+type ILogger = Partial<typeof console> & { error(...data: unknown[]): void };
+
 export class StateMachine<
-  STATE,
+  STATE extends string | number | symbol,
   EVENT extends string | number | symbol,
-  CALLBACKS extends Record<EVENT, Callback> = Record<EVENT, Callback>,
+  CALLBACK extends Record<EVENT, Callback> = Record<EVENT, Callback>,
 > {
 
   protected _current: STATE;
@@ -41,17 +31,17 @@ export class StateMachine<
   // initialize the state-machine
   constructor(
     _init: STATE,
-    protected transitions: ITransition<STATE, EVENT, CALLBACKS[EVENT]>[] = [],
+    protected transitions: ITransition<STATE, EVENT, CALLBACK[EVENT]>[] = [],
     protected readonly logger: ILogger = console,
   ) {
     this._current = _init;
   }
 
-  addTransitions(transitions: ITransition<STATE, EVENT, CALLBACKS[EVENT]>[]): void {
+  addTransitions(transitions: ITransition<STATE, EVENT, CALLBACK[EVENT]>[]): void {
 
     // bind any unbound method
     transitions.forEach((_tran) => {
-      const tran: ITransition<STATE, EVENT, CALLBACKS[EVENT]> = Object.create(_tran);
+      const tran: ITransition<STATE, EVENT, CALLBACK[EVENT]> = Object.create(_tran);
       if (tran.cb && !tran.cb.name?.startsWith("bound ")) {
         tran.cb = tran.cb.bind(this);
       }
@@ -77,7 +67,7 @@ export class StateMachine<
   }
 
   // post event async
-  async dispatch<E extends EVENT>(event: E, ...args: Parameters<CALLBACKS[E]>): Promise<void> {
+  async dispatch<E extends EVENT>(event: E, ...args: Parameters<CALLBACK[E]>): Promise<void> {
     return new Promise<void>((resolve, reject) => {
 
       // delay execution to make it async
@@ -109,7 +99,7 @@ export class StateMachine<
 
         // no such transition
         if (!found) {
-          const errorMessage = this._formatNoTransitionError(me._current, event);
+          const errorMessage = this.#formatNoTransitionError(me._current, event);
           this.logger.error(errorMessage);
           reject(new Error(errorMessage));
         }
@@ -117,7 +107,7 @@ export class StateMachine<
     });
   }
 
-  private _formatNoTransitionError(fromState: STATE, event: EVENT) {
-    return `No transition: from ${fromState} event ${String(event)}`;
+  #formatNoTransitionError(fromState: STATE, event: EVENT) {
+    return `No transition: from ${String(fromState)} event ${String(event)}`;
   }
 }
