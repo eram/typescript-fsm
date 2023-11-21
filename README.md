@@ -118,4 +118,4 @@ Check out [the test code](https://github.com/eram/typescript-fsm/blob/master/src
 
 ## Beautiful :-)
 
-Comments and suggestions are [welcome](https://github.com/eram/typescript-fsm/issues).
+Comments and suggestions are [welcome](https://github.com/eram/typescript-fsm/issues/new).
