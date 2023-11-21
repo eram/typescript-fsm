@@ -18,6 +18,8 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "import/no-extraneous-dependencies": "off",
+    "import/extensions": "off",
     "no-null/no-null": "error",
     "sonarjs/cognitive-complexity": ["error", 30],
     "sonarjs/no-unused-collection": "off",
