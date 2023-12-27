@@ -50,7 +50,7 @@ enum Events { open = 100, openComplete, close, closeComplete, break };
 // lets define the transitions that will govern the state-machine
 const transitions = [
   /* fromState        event                 toState         callback */
-  t(States.closed,    Events.opened,        States.opening, onOpen),
+  t(States.closed,    Events.open,        States.opening, onOpen),
   t(States.opening,   Events.openComplete,  States.opened,  justLog),
   t(States.opened,    Events.close,         States.closing, onClose),
   t(States.closing,   Events.closeComplete, States.closed,  justLog),
