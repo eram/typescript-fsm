@@ -20,10 +20,10 @@ I'm using this state-machine as a simple replacement for Redux in some ReactJs b
 ## Get it
 
   ```script
-  # git clone https://github.com/eram/typescript-fsm.git
-  # cd typescript-fsm
-  # npm install
-  # npm test
+  git clone https://github.com/eram/typescript-fsm.git
+  cd typescript-fsm
+  npm install
+  npm test
   ```
 
 ## Use it
