@@ -1,0 +1,15 @@
+stateDiagram-v2
+  [*] --> closed
+  closed --> opening: open
+  opening --> opened: openComplete
+  opened --> closing: close
+  closing --> closed: closeComplete
+  opened --> breaking: break
+  closed --> breaking: break
+  closed --> locking: lock
+  locking --> locked: lockComplete
+  locked --> unlocking: unlock
+  unlocking --> closed: unlockComplete
+  unlocking --> locked: unlockFailed
+  breaking --> broken: breakComplete
+  broken --> [*]

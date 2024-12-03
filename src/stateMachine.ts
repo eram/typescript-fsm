@@ -49,20 +49,31 @@ export class StateMachine<
     });
   }
 
+  /**
+   * Get the current state of the machine.
+   */
   getState(): STATE { return this._current; }
 
+  /**
+   * Test if a given even can transition to a new state.
+   */
   can(event: EVENT): boolean {
     return this.transitions.some((trans) => (trans.fromState === this._current && trans.event === event));
   }
 
+  /**
+   * When given an event, find the next state that will be transitioned into
+   */
   getNextState(event: EVENT): STATE | undefined {
     const transition = this.transitions.find((tran) => tran.fromState === this._current && tran.event === event);
     return transition?.toState;
   }
 
+  /**
+   * Search for a transition that starts from current state.
+   * If none is found it's a terminal state.
+   */
   isFinal(): boolean {
-    // search for a transition that starts from current state.
-    // if none is found it's a terminal state.
     return this.transitions.every((trans) => (trans.fromState !== this._current));
   }
 
@@ -105,6 +116,34 @@ export class StateMachine<
         }
       }, 0, this);
     });
+  }
+
+  /**
+   * Generate a Mermaid StateDiagram of the current machine.
+   *
+   * Order your transitions so that the first and last are terminals
+   */
+  toMermaid( title?: string ) {
+    const diagram: string[] = [];
+    if (title) {
+      diagram.push("---");
+      diagram.push(`title: ${title}`);
+      diagram.push("---");
+    }
+    diagram.push("stateDiagram-v2");
+    diagram.push(`  [*] --> ${String(this.transitions[0].fromState)}`);
+
+    this.transitions.forEach(({ event, fromState, toState }) => {
+      const from = String(fromState);
+      const to = String(toState);
+      const evt = String(event);
+      diagram.push(`  ${from} --> ${to}: ${evt}`);
+    });
+
+    const last = this.transitions[this.transitions.length - 1];
+    diagram.push(`  ${String(last.toState)} --> [*]`);
+
+    return diagram.join("\n");
   }
 
   #formatNoTransitionError(fromState: STATE, event: EVENT) {

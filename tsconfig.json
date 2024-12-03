@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    // "strict": true,
     "module": "commonjs",
     "target": "ES2020",
     "outDir": "./dist",
@@ -15,6 +16,7 @@
   },
   "include": [
     "src/**/*",
+    "tools/*",
     "*.config.js",
   ]
 }
