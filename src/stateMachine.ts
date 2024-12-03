@@ -107,6 +107,34 @@ export class StateMachine<
     });
   }
 
+  /**
+   * Generate a Mermaid StateDiagram of the current machine.
+   *
+   * Order your transitions so that the first and last are terminals
+   */
+  toMermaid( title?: string ) {
+    const diagram: string[] = [];
+    if (title) {
+      diagram.push("---");
+      diagram.push(`title: ${title}`);
+      diagram.push("---");
+    }
+    diagram.push("stateDiagram-v2");
+    diagram.push(`  [*] --> ${String(this.transitions[0].fromState)}`);
+
+    this.transitions.forEach(({ event, fromState, toState }) => {
+      const from = String(fromState);
+      const to = String(toState);
+      const evt = String(event);
+      diagram.push(`  ${from} --> ${to}: ${evt}`);
+    });
+
+    const last = this.transitions[this.transitions.length - 1];
+    diagram.push(`  ${String(last.toState)} --> [*]`);
+
+    return diagram.join("\n");
+  }
+
   #formatNoTransitionError(fromState: STATE, event: EVENT) {
     return `No transition: from ${String(fromState)} event ${String(event)}`;
   }
