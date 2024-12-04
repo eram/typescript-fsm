@@ -30,11 +30,11 @@ export class StateMachine<
 
   // initialize the state-machine
   constructor(
-    _init: STATE,
+    protected init: STATE,
     protected transitions: ITransition<STATE, EVENT, CALLBACK[EVENT]>[] = [],
     protected readonly logger: ILogger = console,
   ) {
-    this._current = _init;
+    this._current = init;
   }
 
   addTransitions(transitions: ITransition<STATE, EVENT, CALLBACK[EVENT]>[]): void {
@@ -109,8 +109,6 @@ export class StateMachine<
 
   /**
    * Generate a Mermaid StateDiagram of the current machine.
-   *
-   * Order your transitions so that the first and last are terminals
    */
   toMermaid( title?: string ) {
     const diagram: string[] = [];
@@ -120,7 +118,7 @@ export class StateMachine<
       diagram.push("---");
     }
     diagram.push("stateDiagram-v2");
-    diagram.push(`  [*] --> ${String(this.transitions[0].fromState)}`);
+    diagram.push(`  [*] --> ${String(this.init)}`);
 
     this.transitions.forEach(({ event, fromState, toState }) => {
       const from = String(fromState);
@@ -129,8 +127,11 @@ export class StateMachine<
       diagram.push(`  ${from} --> ${to}: ${evt}`);
     });
 
-    const last = this.transitions[this.transitions.length - 1];
-    diagram.push(`  ${String(last.toState)} --> [*]`);
+    // find terminal states
+    const ts = new Set<STATE>();
+    this.transitions.forEach(({ toState }) => ts.add(toState));
+    this.transitions.forEach(({ fromState }) => ts.delete(fromState));
+    ts.forEach((state) => diagram.push(`  ${String(state)} --> [*]`));
 
     return diagram.join("\n");
   }
