@@ -18,7 +18,7 @@ export function t<STATE, EVENT, CALLBACK>(
   return { fromState, event, toState, cb };
 }
 
-type ILogger = Partial<typeof console> & { error(...data: unknown[]): void };
+export type ILogger = Partial<typeof console> & { error(...data: unknown[]): void };
 
 export class StateMachine<
   STATE extends string | number | symbol,
