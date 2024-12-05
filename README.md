@@ -1,8 +1,8 @@
 # TypeScript State Machine (typescript-fsm)
 
 [![Build Status](https://app.travis-ci.com/eram/typescript-fsm.svg?branch=master)](https://app.travis-ci.com/github/eram/typescript-fsm)
-[![npm package](https://badge.fury.io/js/typescript-fsm.svg)](https://www.npmjs.com/package/typescript-fsm)
-<img src="https://forthebadge.com/images/badges/winter-is-coming.svg" alt="It's already here!" height="20"/>
+[![npm package](https://img.shields.io/npm/v/typescript-fsm.svg?logo=nodedotjs&color=00a400)](https://www.npmjs.com/package/typescript-fsm)
+<img src="https://img.shields.io/badge/winter-is%20coming-5593c8" alt="It's already here!" height="20"/>
 
 Finite state machines are useful for modeling complicated flows and keeping track of state. TS-FSM is a strongly typed finite state machine for TypeScript that is using promises for async operations.
 I'm using this state-machine as a simple replacement for Redux in some ReactJs based apps. Example [here](https://github.com/eram/tensorflow-stack-ts/blob/master/client/src/components/server-status-card/StatusCardModel.ts)
