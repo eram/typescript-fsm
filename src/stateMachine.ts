@@ -4,6 +4,7 @@
  */
 
 export type Callback = ((...args: unknown[]) => Promise<void>) | ((...args: unknown[]) => void) | undefined;
+export type SyncCallback = ((...args: unknown[]) => void) | undefined;
 
 export interface ITransition<STATE, EVENT, CALLBACK> {
   fromState: STATE;
@@ -67,7 +68,7 @@ export class StateMachine<
   }
 
   // post event async
-  async dispatch<E extends EVENT>(event: E, ...args: Parameters<CALLBACK[E]>): Promise<void> {
+  dispatch<E extends EVENT>(event: E, ...args: Parameters<CALLBACK[E]>): Promise<void> | void {
     return new Promise<void>((resolve, reject) => {
 
       // delay execution to make it async
@@ -99,7 +100,7 @@ export class StateMachine<
 
         // no such transition
         if (!found) {
-          const errorMessage = this.#formatNoTransitionError(me._current, event);
+          const errorMessage = this.formatNoTransitionError(me._current, event);
           this.logger.error(errorMessage);
           reject(new Error(errorMessage));
         }
@@ -136,7 +137,42 @@ export class StateMachine<
     return diagram.join("\n");
   }
 
-  #formatNoTransitionError(fromState: STATE, event: EVENT) {
+  protected formatNoTransitionError(fromState: STATE, event: EVENT) {
     return `No transition: from ${String(fromState)} event ${String(event)}`;
   }
+}
+
+export class SyncStateMachine<
+  STATE extends string | number | symbol,
+  EVENT extends string | number | symbol,
+  CALLBACK extends Record<EVENT, SyncCallback> = Record<EVENT, SyncCallback>,
+> extends StateMachine<STATE, EVENT, CALLBACK> {
+
+  // post sync event
+  override dispatch = <E extends EVENT>(event: E, ...args: Parameters<CALLBACK[E]>): void => {
+    // find transition
+    const found = this.transitions.some((tran) => {
+      if (tran.fromState === this._current && tran.event === event) {
+        this._current = tran.toState;
+        if (tran.cb) {
+          try {
+            tran.cb(...args);
+            return true;
+          } catch (e) {
+            this.logger.error("Exception caught in callback", e);
+            throw e;
+          }
+        }
+
+        return true;
+      }
+    });
+
+    // no such transition
+    if (!found) {
+      const errorMessage = this.formatNoTransitionError(this._current, event);
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+  };
 }

@@ -1,4 +1,4 @@
-import { t, SyncStateMachine, SyncCallback } from "../syncStateMachine";
+import { t, SyncStateMachine, SyncCallback } from "../stateMachine";
 
 enum States { closing = 0, closed, opening, opened, breaking, broken, locking, locked, unlocking }
 enum Events {
@@ -47,15 +47,15 @@ class Door extends SyncStateMachine<States, Events, ICallbacks> {
   }
 
   // public methods
-  open() { return this.dispatch(Events.open); }
+  open() { this.dispatch(Events.open); }
 
-  close() { return this.dispatch(Events.close); }
+  close() { this.dispatch(Events.close); }
 
-  break() { return this.dispatch(Events.break); }
+  break() { this.dispatch(Events.break); }
 
-  lock() { return this.dispatch(Events.lock); }
+  lock() { this.dispatch(Events.lock); }
 
-  unlock(key: number) { return this.dispatch(Events.unlock, key); }
+  unlock(key: number) { this.dispatch(Events.unlock, key); }
 
   isBroken(): boolean { return this.isFinal(); }
 
@@ -66,31 +66,32 @@ class Door extends SyncStateMachine<States, Events, ICallbacks> {
   // transition callbacks
   private _onOpen() {
     this.logger.log(`${this._id} onOpen...`);
-    return this.dispatch(Events.openComplete);
+    this.dispatch(Events.openComplete);
   }
 
   private _onClose() {
     this.logger.log(`${this._id} onClose...`);
-    return this.dispatch(Events.closeComplete);
+    this.dispatch(Events.closeComplete);
   }
 
   private _onBreak() {
     this.logger.log(`${this._id} onBreak...`);
-    return this.dispatch(Events.breakComplete);
+    this.dispatch(Events.breakComplete);
   }
 
   private _onLock() {
     this.logger.log(`${this._id} onLock...`);
-    return this.dispatch(Events.lockComplete);
+    this.dispatch(Events.lockComplete);
   }
 
   private _onUnlock(key: number) {
     this.logger.log(`${this._id} onUnlock with key=${key}...`);
     if (key === this._key) {
-      return this.dispatch(Events.unlockComplete);
+      this.dispatch(Events.unlockComplete);
+    } else {
+      this.dispatch(Events.unlockFailed);
+      throw new Error(`${key} failed to unlock ${this._id}`);
     }
-    this.dispatch(Events.unlockFailed);
-    throw new Error(`${key} failed to unlock ${this._id}`);
   }
 
   // sync callback
