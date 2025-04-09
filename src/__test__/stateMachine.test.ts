@@ -1,167 +1,177 @@
-import { t, StateMachine, Callback } from "../stateMachine";
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
+import { t, StateMachine, type ILogger } from "../stateMachine";
 
-enum States { closing = 0, closed, opening, opened, breaking, broken, locking, locked, unlocking }
-enum Events {
-  open = 100, openComplete,
-  close, closeComplete,
-  break, breakComplete,
-  lock, lockComplete,
-  unlock, unlockComplete, unlockFailed,
-}
-interface ICallbacks extends Record<Events, Callback> {
-  [Events.unlock]: (key: number) => void;
-}
+describe("stateMachine tests", async () => {
 
-class Door extends StateMachine<States, Events, ICallbacks> {
-
-  private readonly _id = `Door${(Math.floor(Math.random() * 10000))}`;
-  private readonly _key: number;
-
-  // ctor
-  constructor(key = 0, init = States.closed) {
-
-    super(init);
-    this._key = key;
-
-    const s = States;
-    const e = Events;
-
-    /* eslint-disable no-multi-spaces */
-    this.addTransitions([
-      //    fromState     event              toState      callback
-      t(s.closed,     e.open,           s.opening,    this._onOpen),
-      t(s.opening,    e.openComplete,   s.opened,     this._justLog),
-      t(s.opened,     e.close,          s.closing,    this._onClose),
-      t(s.closing,    e.closeComplete,  s.closed,     this._justLog),
-      t(s.opened,     e.break,          s.breaking,   this._onBreak),
-      t(s.breaking,   e.breakComplete,  s.broken),
-      t(s.closed,     e.break,          s.breaking,   this._onBreak),
-      t(s.breaking,   e.breakComplete,  s.broken),
-      t(s.closed,     e.lock,           s.locking,    this._onLock),
-      t(s.locking,    e.lockComplete,   s.locked,     this._justLog),
-      t(s.locked,     e.unlock,         s.unlocking,  this._onUnlock),
-      t(s.unlocking,  e.unlockComplete, s.closed,     this._justLog),
-      t(s.unlocking,  e.unlockFailed,   s.locked,     this._justLog),
-    ]);
-    /* eslint-enable no-multi-spaces */
+  // testing Door state machine
+  enum States { closing = 0, closed, opening, opened, breaking, broken, locking, locked, unlocking }
+  enum Events {
+    open = 100, openComplete,
+    close, closeComplete,
+    break, breakComplete,
+    lock, lockComplete,
+    unlock, unlockComplete, unlockFailed,
   }
 
-  // public methods
-  async open() { return this.dispatch(Events.open); }
+  class Door extends StateMachine<States, Events> {
 
-  async close() { return this.dispatch(Events.close); }
+    private readonly _id = `Door${(Math.floor(Math.random() * 10000))}`;
+    private readonly _key: number;
 
-  async break() { return this.dispatch(Events.break); }
+    // ctor
+    constructor(key = 0, init = States.closed, logger?: ILogger) {
 
-  async lock() { return this.dispatch(Events.lock); }
+      super(init, [], logger);
+      this._key = key;
 
-  async unlock(key: number) { return this.dispatch(Events.unlock, key); }
+      const s = States;
+      const e = Events;
 
-  isBroken(): boolean { return this.isFinal(); }
-
-  isOpen(): boolean { return this.getState() === States.opened; }
-
-  isLocked(): boolean { return this.getState() === States.locked; }
-
-  // transition callbacks
-  private async _onOpen() {
-    this.logger.log(`${this._id} onOpen...`);
-    return this.dispatch(Events.openComplete);
-  }
-
-  private async _onClose() {
-    this.logger.log(`${this._id} onClose...`);
-    return this.dispatch(Events.closeComplete);
-  }
-
-  private async _onBreak() {
-    this.logger.log(`${this._id} onBreak...`);
-    return this.dispatch(Events.breakComplete);
-  }
-
-  private async _onLock() {
-    this.logger.log(`${this._id} onLock...`);
-    return this.dispatch(Events.lockComplete);
-  }
-
-  private async _onUnlock(key: number) {
-    this.logger.log(`${this._id} onUnlock with key=${key}...`);
-    if (key === this._key) {
-      return this.dispatch(Events.unlockComplete);
+      /* eslint-disable no-multi-spaces */
+      this.addTransitions([
+        //    fromState     event              toState      callback
+        t(s.closed,     e.open,             s.opening,    this.#onOpen),
+        t(s.opening,    e.openComplete,     s.opened,     this.#justLog),
+        t(s.opened,     e.close,            s.closing,    this.#onClose),
+        t(s.closing,    e.closeComplete,    s.closed,     this.#justLog),
+        t(s.opened,     e.break,            s.breaking,   this.#onBreak),
+        t(s.breaking,   e.breakComplete,    s.broken),
+        t(s.closed,     e.break,            s.breaking,   this.#onBreak),
+        t(s.breaking,   e.breakComplete,    s.broken),
+        t(s.closed,     e.lock,             s.locking,    this.#onLock),
+        t(s.locking,    e.lockComplete,     s.locked,     this.#justLog),
+        t(s.locked,     e.unlock,           s.unlocking,  this.#onUnlock),
+        t(s.unlocking,  e.unlockComplete,   s.closed,     this.#justLog),
+        t(s.unlocking,  e.unlockFailed,     s.locked,     this.#justLog),
+      ]);
+      /* eslint-enable no-multi-spaces */
     }
-    await this.dispatch(Events.unlockFailed);
-    throw new Error(`${key} failed to unlock ${this._id}`);
+
+    // public methods
+    open = async () => this.dispatch(Events.open);
+    close = async () => this.dispatch(Events.close);
+    break = async () => this.dispatch(Events.break);
+    async lock() { return this.dispatch(Events.lock); }
+    async unlock(key: number) { return this.dispatch(Events.unlock, key); }
+
+    isBroken = () => this.isFinal();
+    isOpen = () => (this.getState() === States.opened);
+    isLocked = () => (this.getState() === States.locked);
+
+    // transition callbacks
+    async #onOpen() {
+      this.logger.log(`${this._id} onOpen...`);
+      return this.dispatch(Events.openComplete);
+    }
+
+    async #onClose() {
+      this.logger.log(`${this._id} onClose...`);
+      return this.dispatch(Events.closeComplete);
+    }
+
+    async #onBreak() {
+      this.logger.log(`${this._id} onBreak...`);
+      return this.dispatch(Events.breakComplete);
+    }
+
+    async #onLock() {
+      this.logger.log(`${this._id} onLock...`);
+      return this.dispatch(Events.lockComplete);
+    }
+
+    async #onUnlock(key: number) {
+      this.logger.log(`${this._id} onUnlock with key=${key}...`);
+      if (key === this._key) {
+        return this.dispatch(Events.unlockComplete);
+      }
+      await this.dispatch(Events.unlockFailed);
+      throw new Error(`${key} failed to unlock ${this._id}`);
+    }
+
+    // sync callback
+    #justLog() {
+      console.log(`${this._id} ${States[this.getState()]}`);
+    }
   }
 
-  // sync callback
-  private _justLog() {
-    console.log(`${this._id} ${States[this.getState()]}`);
-  }
-}
+  // ---- TEST CASES ----
 
+  test("should correctly report current state", async () => {
+    const door = new Door(undefined, States.opened);
+    assert.equal(door.getState(), States.opened);
+    await door.close();
+    assert.equal(door.getState(), States.closed);
+  });
 
-describe("stateMachine tests", () => {
+  test("should handle multiple transition registrations", () => {
+    const door = new Door();
+    // Add a new transition that wasn't in the constructor
+    door.addTransitions([
+      t(States.closed, Events.unlock, States.closed, () => { /* noop */ }),
+    ]);
+    assert.ok(door.can(Events.unlock));
+  });
 
   test("test opening a closed door", async () => {
     const door = new Door();
 
-    expect(door.isOpen()).toBeFalsy();
-    expect(door.isBroken()).toBeFalsy();
-    expect(door.can(Events.open)).toBeTruthy();
-    expect(door.getNextState(Events.open)).toEqual(States.opening);
+    assert.ok(!door.isOpen());
+    assert.ok(!door.isBroken());
+    assert.ok(door.can(Events.open));
+    assert.equal(door.getNextState(Events.open), States.opening);
 
     await door.open();
-    expect(door.isOpen()).toBeTruthy();
+    assert.ok(door.isOpen());
   });
 
-  test("test a failed event", (done) => {
+  test("test a failed event", async () => {
     const door = new Door(undefined, States.opened);
-    expect(door.can(Events.open)).toBeFalsy();
+    assert.ok(!door.can(Events.open));
+    assert.equal(door.getNextState(Events.open), undefined);
 
-    expect(door.getNextState(Events.open)).toBeUndefined();
-
-    door.open().then(() => {
-      expect("should never get here 1").toBeFalsy();
-    }).catch(() => {
-      // we are good.
-      done();
-    });
+    await assert.rejects(door.open());
   });
 
   test("test closing an open door", async () => {
     const door = new Door(undefined, States.opened);
-    expect(door.isOpen()).toBeTruthy();
+    assert.ok(door.isOpen());
 
     await door.close();
-    expect(door.isOpen()).toBeFalsy();
+    assert.ok(!door.isOpen());
   });
 
   test("test breaking a door", async () => {
     const door = new Door();
-    expect(door.isBroken()).toBeFalsy();
+    assert.ok(!door.isBroken());
 
     await door.break();
-    expect(door.isBroken()).toBeTruthy();
-    expect(door.isOpen()).toBeFalsy();
+    assert.ok(door.isBroken());
+    assert.ok(!door.isOpen());
   });
 
   test("broken door cannot be opened or closed", async () => {
     const door = new Door(undefined, States.broken);
-    expect(door.isBroken()).toBeTruthy();
+    assert.ok(door.isBroken());
 
-    await expect(door.open()).rejects.toThrowError(
-      `No transition: from ${States.broken} event ${Events.open}`);
+    await assert.rejects(door.open(), {
+      message: `No transition: from ${States.broken} event ${Events.open}`,
+    });
   });
 
   test("should throw on intermediate state", async () => {
     const door = new Door(undefined, States.opened);
-    expect(door.isOpen()).toBeTruthy();
+    assert.ok(door.isOpen());
 
-    const prms = /* don't await */ door.close();
-    expect(door.isOpen()).toBeTruthy();
-    await expect(door.break()).rejects.toThrowError(
-      `No transition: from ${States.closing} event ${Events.break}`);
-    await prms;
+    const closePromise = door.close();
+    assert.ok(door.isOpen());
+
+    await assert.rejects(door.break(), {
+      message: `No transition: from ${States.closing} event ${Events.break}`,
+    });
+
+    await closePromise;
   });
 
   test("should throw if callback throws", async () => {
@@ -172,27 +182,41 @@ describe("stateMachine tests", () => {
       t(States.opened, Events.open, States.opening, () => { called = true; throw new Error("bad"); }),
     ]);
 
-    expect(door.isOpen()).toBeTruthy();
-    await expect(door.open()).rejects.toBeInstanceOf(Error);
-    expect(called).toBeTruthy();
+    assert.ok(door.isOpen());
+
+    await assert.rejects(door.open(), Error);
+
+    assert.ok(called);
   });
 
   test("should unlock with correct key", async () => {
     const key = 12345;
     const door = new Door(key, States.locked);
     await door.unlock(key);
-    expect(door.isLocked()).toBeFalsy();
+    assert.ok(!door.isLocked());
   });
 
   test("should not unlock with incorrect key", async () => {
     const key = 12345;
     const door = new Door(key, States.locked);
 
-    try {
-      await door.unlock(key + 3);
-      expect("should never get here 1").toBeFalsy();
-    } catch {
-      expect(door.isLocked()).toBeTruthy();
-    }
+    await assert.rejects(door.unlock(key + 3));
+
+    assert.ok(door.isLocked());
+  });
+
+
+  void test("should support custom loggers", async () => {
+    let errorCalled = false;
+    const mockLogger = {
+      error: () => { errorCalled = true; },
+      log: () => {},
+    };
+
+    const door = new Door(0, States.closed, mockLogger);
+
+    await assert.rejects(door.dispatch(Events.unlock));
+
+    assert.ok(errorCalled);
   });
 });

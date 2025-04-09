@@ -38,7 +38,7 @@
     "prefer-destructuring": "off",
     "no-console": "off",
     "padded-blocks": "off",
-    "no-void": "error",
+    "no-void": ["error", { "allowAsStatement": true }],
     "arrow-parens": "off",
     "no-cond-assign": "off",
     "no-multiple-empty-lines": ["error", { "max": 2 }],
@@ -59,7 +59,7 @@
     "@typescript-eslint/no-explicit-any": "error",
     "lines-between-class-members": "off",
     "@typescript-eslint/lines-between-class-members": "off",
-    "@typescript-eslint/no-floating-promises": ["error"],
+    "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/naming-convention":["error",
         {
           "selector": "default",

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
 import { t, StateMachine } from "../stateMachine";
 
 export enum States {
@@ -61,30 +64,29 @@ describe("StateMachine#toMermaid()", () => {
     const mmd = door.toMermaid();
     const lines = mmd.split("\n");
 
-    expect(lines[0]).toBe("stateDiagram-v2");
-    expect(lines[1]).toBe("  [*] --> closed");
-    expect(lines[2]).toBe("  closed --> opening: open");
-    expect(lines[3]).toBe("  opening --> opened: openComplete");
-    expect(lines[4]).toBe("  opened --> closing: close");
-    expect(lines[5]).toBe("  closing --> closed: closeComplete");
-    expect(lines[6]).toBe("  opened --> breaking: break");
-    expect(lines[7]).toBe("  closed --> breaking: break");
-    expect(lines[8]).toBe("  closed --> locking: lock");
-    expect(lines[9]).toBe("  locking --> locked: lockComplete");
-    expect(lines[10]).toBe("  locked --> unlocking: unlock");
-    expect(lines[11]).toBe("  unlocking --> closed: unlockComplete");
-    expect(lines[12]).toBe("  unlocking --> locked: unlockFailed");
-    expect(lines[13]).toBe("  breaking --> broken: breakComplete");
-    expect(lines[14]).toBe("  broken --> [*]");
+    assert.equal(lines[0], "stateDiagram-v2");
+    assert.equal(lines[1], "  [*] --> closed");
+    assert.equal(lines[2], "  closed --> opening: open");
+    assert.equal(lines[3], "  opening --> opened: openComplete");
+    assert.equal(lines[4], "  opened --> closing: close");
+    assert.equal(lines[5], "  closing --> closed: closeComplete");
+    assert.equal(lines[6], "  opened --> breaking: break");
+    assert.equal(lines[7], "  closed --> breaking: break");
+    assert.equal(lines[8], "  closed --> locking: lock");
+    assert.equal(lines[9], "  locking --> locked: lockComplete");
+    assert.equal(lines[10], "  locked --> unlocking: unlock");
+    assert.equal(lines[11], "  unlocking --> closed: unlockComplete");
+    assert.equal(lines[12], "  unlocking --> locked: unlockFailed");
+    assert.equal(lines[13], "  breaking --> broken: breakComplete");
+    assert.equal(lines[14], "  broken --> [*]");
   });
-
 
   test("generate state diagram with title", async () => {
     const mmd = door.toMermaid("The Door Machine");
     const lines = mmd.split("\n");
 
-    expect(lines[0]).toBe("---");
-    expect(lines[1]).toBe("title: The Door Machine");
-    expect(lines[2]).toBe("---");
+    assert.equal(lines[0], "---");
+    assert.equal(lines[1], "title: The Door Machine");
+    assert.equal(lines[2], "---");
   });
 });

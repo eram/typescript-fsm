@@ -2,8 +2,8 @@
  * StateMachine.ts
  * TypeScript finite state machine class with async transformations using promises.
  */
-
-export type Callback = ((...args: unknown[]) => Promise<void>) | ((...args: unknown[]) => void) | undefined;
+export type SyncCallback = ((...args: unknown[]) => void);
+export type Callback = ((...args: unknown[]) => Promise<void>) | SyncCallback;
 
 export interface ITransition<STATE, EVENT, CALLBACK> {
   fromState: STATE;
@@ -20,6 +20,10 @@ export function t<STATE, EVENT, CALLBACK>(
 
 export type ILogger = Partial<typeof console> & { error(...data: unknown[]): void };
 
+/**
+ * StateMachine
+ * TypeScript finite state machine class with async transformations.
+ */
 export class StateMachine<
   STATE extends string | number | symbol,
   EVENT extends string | number | symbol,
@@ -66,8 +70,12 @@ export class StateMachine<
     return this.transitions.every((trans) => (trans.fromState !== this._current));
   }
 
+  protected formatErr(fromState: STATE, event: EVENT) {
+    return `No transition: from ${String(fromState)} event ${String(event)}`;
+  }
+
   // post event async
-  async dispatch<E extends EVENT>(event: E, ...args: Parameters<CALLBACK[E]>): Promise<void> {
+  async dispatch<E extends EVENT>(event: E, ...args: unknown[]): Promise<void> {
     return new Promise<void>((resolve, reject) => {
 
       // delay execution to make it async
@@ -81,12 +89,12 @@ export class StateMachine<
               try {
                 const p = tran.cb(...args);
                 if (p instanceof Promise) {
-                  p.then(resolve).catch((e: Error) => reject(e));
+                  p.then(resolve).catch(reject);
                 } else {
                   resolve();
                 }
               } catch (e) {
-                this.logger.error("Exception caught in callback", e);
+                this.logger.error("Exception in callback", e);
                 reject(e);
               }
             } else {
@@ -99,7 +107,7 @@ export class StateMachine<
 
         // no such transition
         if (!found) {
-          const errorMessage = this.#formatNoTransitionError(me._current, event);
+          const errorMessage = this.formatErr(me._current, event);
           this.logger.error(errorMessage);
           reject(new Error(errorMessage));
         }
@@ -136,7 +144,58 @@ export class StateMachine<
     return diagram.join("\n");
   }
 
-  #formatNoTransitionError(fromState: STATE, event: EVENT) {
-    return `No transition: from ${String(fromState)} event ${String(event)}`;
+}
+
+/**
+ * SyncStateMachine
+ * TypeScript finite state machine class with sync transformations.
+ */
+export class SyncStateMachine<
+  STATE extends string | number | symbol,
+  EVENT extends string | number | symbol,
+  CALLBACK extends Record<EVENT, SyncCallback> = Record<EVENT, SyncCallback>,
+> extends StateMachine<STATE, EVENT, CALLBACK> {
+
+  constructor(
+    init: STATE,
+    transitions: ITransition<STATE, EVENT, CALLBACK[EVENT]>[] = [],
+    logger: ILogger = console,
+  ) {
+    super(init, transitions, logger);
+  }
+
+  override dispatch<E extends EVENT>(_event: E, ..._args: unknown[]): Promise<void> {
+    throw new Error("SyncStateMachine does not support async dispatch.");
+  }
+
+  // post sync event
+  // returns true if the event was handled, false otherwise
+  syncDispatch<E extends EVENT>(event: E, ...args: unknown[]): boolean {
+    // find transition
+    const found = this.transitions.some((tran) => {
+      if (tran.fromState === this._current && tran.event === event) {
+        const current = this._current;
+        this._current = tran.toState;
+        if (tran.cb) {
+          try {
+            tran.cb(...args);
+          } catch (e) {
+            this._current = current; // revert to previous state
+            this.logger.error("Exception in callback", e);
+            throw e;
+          }
+          return true;
+        }
+        return false; // search for more transitions
+      }
+    });
+
+    // no such transition
+    if (!found) {
+      const errorMessage = this.formatErr(this._current, event);
+      this.logger.error(errorMessage);
+    }
+
+    return (!!found);
   }
 }
