@@ -39,7 +39,6 @@ describe("stateMachine tests", async () => {
         t(s.opened,     e.break,            s.breaking,   this.#onBreak),
         t(s.breaking,   e.breakComplete,    s.broken),
         t(s.closed,     e.break,            s.breaking,   this.#onBreak),
-        t(s.breaking,   e.breakComplete,    s.broken),
         t(s.closed,     e.lock,             s.locking,    this.#onLock),
         t(s.locking,    e.lockComplete,     s.locked,     this.#justLog),
         t(s.locked,     e.unlock,           s.unlocking,  this.#onUnlock),
